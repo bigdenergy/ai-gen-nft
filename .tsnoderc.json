@@ -1,0 +1,9 @@
+{
+  "esm": true,
+  "ts-node": {
+    "transpileOnly": true,
+    "moduleTypes": {
+      "**/*.ts": "esm"
+    }
+  }
+}
