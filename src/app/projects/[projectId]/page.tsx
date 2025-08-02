@@ -1,8 +1,8 @@
-// app/projects/[projectId]/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { Button } from '@/components/ui/button';
 
 interface NFT {
   id: string;
@@ -24,10 +24,11 @@ interface Progress {
 export default function ProjectPage({ params }: { params: { projectId: string } }) {
   const { projectId } = params;
 
-  const [nfts, setNfts] = useState<NFT[] | null>(null); // Initialement null pour gérer le chargement
+  const [nfts, setNfts] = useState<NFT[] | null>(null);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -59,7 +60,7 @@ export default function ProjectPage({ params }: { params: { projectId: string } 
           console.log('Progress updated:', data);
           if (data.progress === 100 && data.failed === 0) {
             console.log('100% complete, reloading NFTs...');
-            await fetchNfts(); // Recharger les NFTs automatiquement
+            await fetchNfts();
           }
         } else {
           const errorText = await response.text();
@@ -91,9 +92,35 @@ export default function ProjectPage({ params }: { params: { projectId: string } 
 
     return () => {
       isMounted = false;
-    if (interval) clearInterval(interval); // Nettoyer l'intervalle au démontage
+      if (interval) clearInterval(interval);
     };
   }, [projectId]);
+
+  const handleDownloadZip = async () => {
+    setDownloading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/download/${projectId}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to download ZIP');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `project_${projectId}_nfts.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to download ZIP');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   if (loading || nfts === null) {
     return <div className="text-center">Loading... <span className="animate-spin">🔄</span></div>;
@@ -106,31 +133,43 @@ export default function ProjectPage({ params }: { params: { projectId: string } 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-center">
-       project <code>{projectId}</code>
+        project <code>{projectId}</code>
       </h1>
       {progress && (
         <div className="mb-4 text-center">
-          <p className={progress.progress == 100 ? "text-green-600" : "text-orange-400"}          >Generation in progress... {progress.progress}% complete</p>
+          <p className={progress.progress == 100 ? "text-green-600" : "text-orange-400"}>
+            Generation in progress... {progress.progress}% complete
+          </p>
         </div>
       )}
       {nfts.length === 0 ? (
         <p className="text-center">No NFTs generated yet. Generation in progress...</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-8 gap-4">
-  {nfts.map((nft) => (
-    <div key={nft.id} className="border transition-shadow">
-      <div className="aspect-square w-full overflow-hidden">
-        <img
-          src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/nft-images/${nft.image_url}`}
-          alt={nft.metadata.name}
-          className="w-full h-full object-cover"
-          onError={(e) => console.error('Image load error:', e)}
-        />
-      </div>
-    </div>
-  ))}
-</div>
-
+        <>
+          <div className="mb-4 text-center">
+            <Button
+              onClick={handleDownloadZip}
+              disabled={downloading || nfts.length === 0}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {downloading ? 'Downloading...' : 'Download All NFTs as ZIP'}
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-8 gap-4">
+            {nfts.map((nft) => (
+              <div key={nft.id} className="border transition-shadow">
+                <div className="aspect-square w-full overflow-hidden">
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/nft-images/${nft.image_url}`}
+                    alt={nft.metadata.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => console.error('Image load error:', e)}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
