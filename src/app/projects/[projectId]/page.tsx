@@ -34,40 +34,40 @@ export default function ProjectPage({ params }: { params: { projectId: string } 
     let interval: NodeJS.Timeout | null = null;
 
     const fetchNfts = async () => {
-      console.log(`[05:06 PM CEST] Fetching NFTs for project ${projectId}...`);
+      console.log(`Fetching NFTs for project ${projectId}...`);
       const { data, error } = await supabase
         .from('nfts')
         .select('*')
         .eq('project_id', projectId);
 
       if (error) {
-        console.error('[05:06 PM CEST] Error loading NFTs:', error);
+        console.error('Error loading NFTs:', error);
         if (isMounted) setError('Failed to load NFTs: ' + error.message);
       } else {
         if (isMounted) setNfts(data || []);
-        console.log('[05:06 PM CEST] NFTs loaded:', data?.length || 0);
+        console.log('NFTs loaded:', data?.length || 0);
       }
     };
 
     const fetchProgress = async () => {
       try {
-        console.log('[05:06 PM CEST] Fetching progress for project:', projectId);
+        console.log('Fetching progress for project:', projectId);
         const response = await fetch(`/api/progress/${projectId}`);
         if (response.ok) {
           const data = await response.json();
           if (isMounted) setProgress(data);
-          console.log('[05:06 PM CEST] Progress updated:', data);
+          console.log('Progress updated:', data);
           if (data.progress === 100 && data.failed === 0) {
-            console.log('[05:06 PM CEST] 100% complete, reloading NFTs...');
+            console.log('100% complete, reloading NFTs...');
             await fetchNfts(); // Recharger les NFTs automatiquement
           }
         } else {
           const errorText = await response.text();
-          console.error('[05:06 PM CEST] Error fetching progress:', errorText);
+          console.error('Error fetching progress:', errorText);
           if (isMounted) setError(`Failed to fetch progress: ${errorText}`);
         }
       } catch (err) {
-        console.error('[05:06 PM CEST] Fetch progress error:', err);
+        console.error('Fetch progress error:', err);
         if (isMounted)
           setError(
             err instanceof Error
@@ -106,29 +106,31 @@ export default function ProjectPage({ params }: { params: { projectId: string } 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-center">
-        NFTs for Project <code>{projectId}</code>
+       project <code>{projectId}</code>
       </h1>
       {progress && (
         <div className="mb-4 text-center">
-          <p>Generation in progress... {progress.progress}% complete</p>
+          <p className={progress.progress == 100 ? "text-green-600" : "text-orange-400"}          >Generation in progress... {progress.progress}% complete</p>
         </div>
       )}
       {nfts.length === 0 ? (
         <p className="text-center">No NFTs generated yet. Generation in progress...</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {nfts.map((nft) => (
-            <div key={nft.id} className="border p-4 rounded shadow-md hover:shadow-lg transition-shadow">
-              <img
-                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/nft-images/${nft.image_url}`}
-                alt={nft.metadata.name}
-                className="w-full h-48 object-cover rounded"
-                onError={(e) => console.error('[05:06 PM CEST] Image load error:', e)}
-              />
-            
-            </div>
-          ))}
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-8 gap-4">
+  {nfts.map((nft) => (
+    <div key={nft.id} className="border transition-shadow">
+      <div className="aspect-square w-full overflow-hidden">
+        <img
+          src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/nft-images/${nft.image_url}`}
+          alt={nft.metadata.name}
+          className="w-full h-full object-cover"
+          onError={(e) => console.error('Image load error:', e)}
+        />
+      </div>
+    </div>
+  ))}
+</div>
+
       )}
     </div>
   );

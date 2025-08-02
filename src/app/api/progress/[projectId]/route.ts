@@ -5,24 +5,25 @@ import { Job } from 'bullmq';
 
 export async function GET(_: Request, { params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  console.log(`Fetching progress for project ${projectId} at ${new Date().toISOString()}`);
 
   try {
-    const jobs = await generationQueue.getJobs(['waiting', 'active', 'completed', 'failed'], 0, -1, true);
-    console.log(`Total jobs retrieved: ${jobs.length}`);
+    // Récupérer tous les jobs pertinents
+    const jobs = await generationQueue.getJobs(
+      ['waiting', 'active', 'completed', 'failed'],
+      0,
+      -1,
+      true
+    );
 
+    // Filtrer les jobs du projet des dernières 24h
     const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
-    const relevantJobs: Job[] = [];
-
-    for (const job of jobs) {
+    const relevantJobs: Job[] = jobs.filter((job) => {
       const isRelevant = job.data?.projectId === projectId;
       const isRecent = !job.timestamp || job.timestamp > twentyFourHoursAgo;
+      return isRelevant && isRecent;
+    });
 
-      if (isRelevant && isRecent) {
-        relevantJobs.push(job);
-      }
-    }
-
+    // Vérifier l'état de chaque job
     const statusChecks = await Promise.all(
       relevantJobs.map(async (job) => ({
         isCompleted: await job.isCompleted(),
@@ -35,13 +36,20 @@ export async function GET(_: Request, { params }: { params: Promise<{ projectId:
     const failed = statusChecks.filter((s) => s.isFailed).length;
     const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-    console.log(`Project ${projectId}: ${completed}/${total} completed, ${failed} failed (${progress}%)`);
+    // Ne plus afficher les logs une fois à 100%
+    if (progress < 100) {
+      console.log(`Fetching progress for project ${projectId} at ${new Date().toISOString()}`);
+      console.log(`Total jobs retrieved: ${jobs.length}`);
+      console.log(`Project ${projectId}: ${completed}/${total} completed, ${failed} failed (${progress}%)`);
+    }
 
     return NextResponse.json({ total, completed, failed, progress });
   } catch (error) {
-    console.error(`Error:`, error);
+    console.error('Error in progress route:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      {
+        error: error instanceof Error ? error.message : 'Internal server error',
+      },
       { status: 500 }
     );
   }

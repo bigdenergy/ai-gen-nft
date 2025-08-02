@@ -1,0 +1,38 @@
+[
+  {
+    "category": "hat",
+    "options": "Beanie,Fedora,Cap,Viking Helmet,Halo,Cowboy Hat,Top Hat,Crown,Bucket Hat,Beret,Trucker Hat,Snapback,Sombrero,Chef Hat,Pirate Hat,Wizard Hat,Hard Hat,Propeller Hat,Diddy Mask (Gold Grill Visor),Disco Ball Helmet,Toaster Headpiece,Floating UFO Hat,none"
+  },
+  {
+    "category": "skin",
+    "options": "Human,Alien,Robot,Zombie,Skeleton,Lava,Ice,Golden,Wood,Stone,Crystal,Neon,Furry,Scaly,Cloud,Marble,Glitch,Mirror Chrome,Liquid Metal,Chameleon Shift,Popcorn Texture,none"
+  },
+  {
+    "category": "outfit",
+    "options": "Suit,Hoodie,Armor,Astronaut,Samurai,Tracksuit,Pajamas,Chef Coat,Wizard Robe,Biker Jacket,Tuxedo,Kimono,Dress,Lab Coat,Superhero Cape,Streetwear,Jumpsuit,Bubble Wrap Suit,Inflatable T-Rex Costume,Glowstick Rave Gear,Mermaid Tail Wrap,none"
+  },
+  {
+    "category": "hair",
+    "options": "Short,Buzz Cut,Mohawk,Ponytail,Dreadlocks,Afro,Bowl Cut,Mullet,Spiky,Bald,Long Braids,Curly,Neon Glow,Fire Hair,Holographic,Seaweed Tangles,Cotton Candy Fluff,Pixelated Glitch Hair,none"
+  },
+  {
+    "category": "shoes",
+    "options": "Sneakers,Boots,Flip Flops,High Heels,Loafers,Sandals,Clogs,Jet Boots,Hover Shoes,Barefoot,Roller Skate Feet,Spring-Loaded Stilts,Slime-Dripping Slippers,Fishbowl Heels,none"
+  },
+  {
+    "category": "accessory",
+    "options": "Fairy Wings,Cyborg Monocle,Third Eye Gem,Steampunk Goggles,Tentacle Beard,Disco Ball Earrings,Hovering Drone Buddy,Back-Mounted Rocket Pack,Spinning Hypno Glasses,Enchanted Amulet,none"
+  },
+  {
+    "category": "face",
+    "options": "Human Face,Clown Paint,Robot Visor,Alien Eyes,Glowing Eyes,Skull Mask,Glitchy Pixel Face,Bubblegum Cheeks,Lizard Snout,Floating Emoji Halo,Penis-Shaped Head (Cartoonish),TV Screen Face,none"
+  },
+  {
+    "category": "aura",
+    "options": "None,Glowing Halo,Dark Smoke Trail,Glitter Sparkles,Neon Pulse,Flaming Outline,Gravity-Defying Pebbles,Swarming Fireflies,Retro VHS Static,Psychedelic Color Swirl"
+  },
+  {
+    "category": "weapon",
+    "options": "None,Laser Sword,Banana Blaster,Glowstick Nunchucks,Toaster Cannon,Inflatable Hammer,Bubble Gun,Pixel"
+  }
+]
